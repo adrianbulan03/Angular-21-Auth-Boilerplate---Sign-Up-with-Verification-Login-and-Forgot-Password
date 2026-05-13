@@ -25,8 +25,9 @@ const dbMiddleware = async (req: any, res: any, next: any) => {
         await ensureDbInitialized();
         next();
     } catch (err: any) {
-        console.error("Database initialization error in middleware:", err);
-        res.status(500).json({ message: 'Database initialization failed', error: err.message || err });
+        const errorMessage = err.message || err;
+        console.error("Database initialization error in middleware:", errorMessage);
+        res.status(500).json({ message: `Database initialization failed: ${errorMessage}` });
     }
 };
 
