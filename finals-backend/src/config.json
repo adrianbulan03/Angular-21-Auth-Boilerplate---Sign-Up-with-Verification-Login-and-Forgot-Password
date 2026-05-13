@@ -1,0 +1,18 @@
+{
+    "database": {
+        "host": "153.92.15.31",
+        "port": 3306,
+        "user": "u875409848_bulan",
+        "password": "2qW^sUg=M",
+        "database": "u875409848_bulan"
+    },
+    "secret": "SUPER_SECRET_KEY",
+    "emailform": "lilyshaneee01@gmail.com",
+    "smtpOptions": {
+        "service": "gmail",
+        "auth": {
+            "user": "lilyshaneee01@gmail.com",
+            "pass": "ljtw pgli jigl kyss"
+        }
+    }
+}
