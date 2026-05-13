@@ -1,7 +1,6 @@
 import express, { Application } from "express"
 import cors from "cors"
 import { errorHandler } from "./middleware/errorHandler"
-import { initialize } from "./_helpers/db"
 import userController from "./users/users.controller"
 import accountsController from "./accounts/accounts.controller"
 import cookieParser from "cookie-parser"
@@ -10,6 +9,26 @@ import YAML from "yamljs"
 import path from "path"
 
 import fs from 'fs';
+import { initialize } from "./_helpers/db"
+
+// Ensure DB is initialized before processing any request
+let initPromise: Promise<void> | null = null;
+async function ensureDbInitialized() {
+    if (!initPromise) {
+        initPromise = initialize();
+    }
+    return initPromise;
+}
+
+const dbMiddleware = async (req: any, res: any, next: any) => {
+    try {
+        await ensureDbInitialized();
+        next();
+    } catch (err: any) {
+        console.error("Database initialization error in middleware:", err);
+        res.status(500).json({ message: 'Database initialization failed', error: err.message || err });
+    }
+};
 
 const swaggerPath = path.join(__dirname, "swagger.yaml");
 let swaggerDocument = {};
@@ -42,6 +61,10 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
     ]
 }))
 app.get("/", (req, res) => res.redirect("/api-docs"))
+
+// Wait for DB to be ready before handling any API routes
+app.use(dbMiddleware);
+
 app.use("/accounts", accountsController)
 app.use("/users", userController)
 
@@ -50,17 +73,11 @@ app.use(errorHandler)
 const PORT = process.env.PORT || 4000
 
 if (process.env.NODE_ENV !== 'production') {
-    initialize()
-        .then(() => {
-            app.listen(PORT, () => {
-                console.log(`SERVER IS RUNNING ON http://localhost:${PORT}`)
-            })
-        }).catch((err) => {
-            console.log(`Failed to initialize database::`, err)
+    ensureDbInitialized().then(() => {
+        app.listen(PORT, () => {
+            console.log(`SERVER IS RUNNING ON http://localhost:${PORT}`)
         })
-} else {
-    // For Vercel/Production: Initialize DB but don't call listen (Vercel handles it)
-    initialize().catch(err => console.error("DB Init Error:", err));
+    });
 }
 
 export default app;
