@@ -9,17 +9,31 @@ import swaggerUi from "swagger-ui-express"
 import YAML from "yamljs"
 import path from "path"
 
-const swaggerDocument = YAML.load(path.join(__dirname, "swagger.yaml"))
+const swaggerPath = path.join(process.cwd(), "src", "swagger.yaml");
+let swaggerDocument;
+try {
+    swaggerDocument = YAML.load(swaggerPath);
+} catch (e) {
+    console.error("Failed to load swagger.yaml from:", swaggerPath);
+    // Fallback or handle error
+}
 
 const app: Application = express()
-
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cors({ origin: (origin, callback) => callback(null, true), credentials: true }));
 app.use(cookieParser());
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+// Use CDN for Swagger UI assets to ensure they work on Vercel
+const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+    customCssUrl: CSS_URL,
+    customJs: [
+        "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui-bundle.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui-standalone-preset.min.js"
+    ]
+}))
 app.get("/", (req, res) => res.redirect("/api-docs"))
 app.use("/accounts", accountsController)
 app.use("/users", userController)
