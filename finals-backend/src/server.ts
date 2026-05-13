@@ -28,14 +28,18 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT || 4000
 
-
-initialize()
-    .then(() => {
-        app.listen(PORT, () => {
-            console.log(`SERVER IS RUNNING ON http://localhost:${PORT}`)
-            console.log(`TEST WITH: POST /users with {email, password, ....}`)
+if (process.env.NODE_ENV !== 'production') {
+    initialize()
+        .then(() => {
+            app.listen(PORT, () => {
+                console.log(`SERVER IS RUNNING ON http://localhost:${PORT}`)
+            })
+        }).catch((err) => {
+            console.log(`Failed to initialize database::`, err)
         })
-    }).catch((err) => {
-        console.log(`Failed to initialize database::`, err)
-        process.exit(1)
-    })
+} else {
+    // For Vercel/Production: Initialize DB but don't call listen (Vercel handles it)
+    initialize().catch(err => console.error("DB Init Error:", err));
+}
+
+export default app;
