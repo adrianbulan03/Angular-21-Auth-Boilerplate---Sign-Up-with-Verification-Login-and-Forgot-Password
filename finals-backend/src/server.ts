@@ -12,10 +12,15 @@ import path from "path"
 import fs from 'fs';
 
 const swaggerPath = path.join(__dirname, "swagger.yaml");
-let swaggerDocument;
+let swaggerDocument = {};
 try {
-    const file = fs.readFileSync(swaggerPath, 'utf8');
-    swaggerDocument = YAML.parse(file);
+    if (fs.existsSync(swaggerPath)) {
+        const file = fs.readFileSync(swaggerPath, 'utf8');
+        swaggerDocument = YAML.parse(file);
+        console.log("Swagger document loaded successfully");
+    } else {
+        console.error("Swagger file NOT found at:", swaggerPath);
+    }
 } catch (e) {
     console.error("Failed to load swagger.yaml from:", swaggerPath, e);
 }
