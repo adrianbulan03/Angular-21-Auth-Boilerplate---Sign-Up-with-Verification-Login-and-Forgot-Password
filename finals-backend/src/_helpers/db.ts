@@ -1,6 +1,7 @@
 
 import config from "../config.json"
 import mysql from "mysql2/promise"
+import "mysql2"; // Force inclusion for Sequelize
 import { Sequelize } from "sequelize"
 
 export interface Database {
