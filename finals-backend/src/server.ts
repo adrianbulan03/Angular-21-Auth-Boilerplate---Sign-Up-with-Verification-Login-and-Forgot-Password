@@ -9,13 +9,15 @@ import swaggerUi from "swagger-ui-express"
 import YAML from "yamljs"
 import path from "path"
 
-const swaggerPath = path.join(process.cwd(), "src", "swagger.yaml");
+import fs from 'fs';
+
+const swaggerPath = path.join(__dirname, "swagger.yaml");
 let swaggerDocument;
 try {
-    swaggerDocument = YAML.load(swaggerPath);
+    const file = fs.readFileSync(swaggerPath, 'utf8');
+    swaggerDocument = YAML.parse(file);
 } catch (e) {
-    console.error("Failed to load swagger.yaml from:", swaggerPath);
-    // Fallback or handle error
+    console.error("Failed to load swagger.yaml from:", swaggerPath, e);
 }
 
 const app: Application = express()
