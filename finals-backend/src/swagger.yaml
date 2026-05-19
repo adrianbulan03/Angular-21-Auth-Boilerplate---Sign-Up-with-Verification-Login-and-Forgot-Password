@@ -24,6 +24,8 @@ paths:
   /accounts/revoke-token:
     post:
       summary: Revoke a refresh token
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Token revoked
@@ -49,6 +51,8 @@ paths:
                   type: string
                 confirmPassword:
                   type: string
+                acceptTerms:
+                  type: boolean
       responses:
         '200':
           description: Registration successful
@@ -76,3 +80,107 @@ paths:
       responses:
         '200':
           description: Password reset successful
+  /accounts:
+    get:
+      summary: Get a list of all accounts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Get list of all accounts successful
+    post:
+      summary: Create a new account
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                confirmPassword:
+                  type: string
+                role:
+                  type: string
+      responses:
+        '200':
+          description: Account created successfully
+  /accounts/{id}:
+    get:
+      summary: Get a single account by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get single account successful
+    put:
+      summary: Update an account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                confirmPassword:
+                  type: string
+                role:
+                  type: string
+      responses:
+        '200':
+          description: Update account successful
+    delete:
+      summary: Delete an account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Delete account successful
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
